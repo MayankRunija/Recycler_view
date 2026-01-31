@@ -4,6 +4,7 @@ import DirectoryItem
 import android.os.Bundle
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
@@ -20,9 +21,41 @@ class MainActivity : AppCompatActivity() {
             initialData.add(DirectoryItem("Root Folder $i", 0, true))
         }
 
-        rv.adapter = DirectoryAdapter(initialData) { item ->
+        val adapter = DirectoryAdapter(initialData) { item ->
             findViewById<TextView>(R.id.tv_breadcrumb).text = getPath(item)
         }
+        rv.adapter = adapter
+
+        // Setup Drag and Drop
+        val itemTouchHelper = ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(
+            ItemTouchHelper.UP or ItemTouchHelper.DOWN, 0
+        ) {
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean {
+                return adapter.onItemMove(viewHolder.adapterPosition, target.adapterPosition)
+            }
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {}
+
+            // Visual effect: Fade the item when picked up
+            override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
+                super.onSelectedChanged(viewHolder, actionState)
+                if (actionState == ItemTouchHelper.ACTION_STATE_DRAG) {
+                    viewHolder?.itemView?.alpha = 0.5f
+                }
+            }
+
+            // Restore visual state when dropped
+            override fun clearView(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder) {
+                super.clearView(recyclerView, viewHolder)
+                viewHolder.itemView.alpha = 1.0f
+            }
+        })
+
+        itemTouchHelper.attachToRecyclerView(rv)
     }
 
     fun loadChildrenForItem(parentItem: DirectoryItem) {

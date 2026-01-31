@@ -8,6 +8,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import java.util.Collections
 
 class DirectoryAdapter(
     private var fullList: List<DirectoryItem>,
@@ -18,7 +19,7 @@ class DirectoryAdapter(
 
     init { generateVisibleList() }
 
-    private fun generateVisibleList() {
+    fun generateVisibleList() {
         visibleList.clear()
         fun addChildren(items: List<DirectoryItem>) {
             for (item in items) {
@@ -28,6 +29,33 @@ class DirectoryAdapter(
         }
         addChildren(fullList)
         notifyDataSetChanged()
+    }
+
+    // Logic to handle dragging within the same level/parent
+    fun onItemMove(fromPosition: Int, toPosition: Int): Boolean {
+        val fromItem = visibleList[fromPosition]
+        val toItem = visibleList[toPosition]
+
+        // Rule: Only move if same parent and same level
+        if (fromItem.parent == toItem.parent && fromItem.level == toItem.level) {
+            // 1. Swap in the visible list for UI feedback
+            Collections.swap(visibleList, fromPosition, toPosition)
+
+            // 2. Swap in the actual source subItems list to persist order
+            val parentSubItems = fromItem.parent?.subItems as? MutableList<DirectoryItem>
+                ?: fullList as MutableList<DirectoryItem>
+
+            val fromIdx = parentSubItems.indexOf(fromItem)
+            val toIdx = parentSubItems.indexOf(toItem)
+
+            if (fromIdx != -1 && toIdx != -1) {
+                Collections.swap(parentSubItems, fromIdx, toIdx)
+            }
+
+            notifyItemMoved(fromPosition, toPosition)
+            return true
+        }
+        return false
     }
 
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -58,7 +86,6 @@ class DirectoryAdapter(
                     if (!item.isLoaded) {
                         ((root.context) as MainActivity).loadChildrenForItem(item)
                     }
-
                     item.isExpanded = !item.isExpanded
                     generateVisibleList()
                 }
@@ -73,6 +100,4 @@ class DirectoryAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) = holder.bind(visibleList[position])
     override fun getItemCount() = visibleList.size
-
-
 }
