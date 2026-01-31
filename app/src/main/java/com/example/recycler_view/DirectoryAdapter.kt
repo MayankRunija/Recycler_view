@@ -31,17 +31,13 @@ class DirectoryAdapter(
         notifyDataSetChanged()
     }
 
-    // Logic to handle dragging within the same level/parent
     fun onItemMove(fromPosition: Int, toPosition: Int): Boolean {
         val fromItem = visibleList[fromPosition]
         val toItem = visibleList[toPosition]
 
-        // Rule: Only move if same parent and same level
         if (fromItem.parent == toItem.parent && fromItem.level == toItem.level) {
-            // 1. Swap in the visible list for UI feedback
             Collections.swap(visibleList, fromPosition, toPosition)
 
-            // 2. Swap in the actual source subItems list to persist order
             val parentSubItems = fromItem.parent?.subItems as? MutableList<DirectoryItem>
                 ?: fullList as MutableList<DirectoryItem>
 
