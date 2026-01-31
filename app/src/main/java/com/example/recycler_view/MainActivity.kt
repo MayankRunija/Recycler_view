@@ -2,6 +2,7 @@ package com.example.recycler_view
 
 import DirectoryItem
 import android.os.Bundle
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -14,32 +15,46 @@ class MainActivity : AppCompatActivity() {
         val rv = findViewById<RecyclerView>(R.id.recyclerView)
         rv.layoutManager = LinearLayoutManager(this)
 
-        // Using true/false instead of FileType
-        val data = listOf(
-            DirectoryItem("New York City", 0, true, subItems = listOf(
-                DirectoryItem("Manhattan District", 1, true, subItems = listOf(
-                    DirectoryItem("Upper East Side", 2, true, subItems = listOf(
-                        DirectoryItem("5th Avenue", 3, true, subItems = listOf(
-                            DirectoryItem("Skyline Towers (Building A)", 4, true, subItems = listOf(
-                                DirectoryItem("Penthouse Suite", 5, true, subItems = listOf(
-                                    DirectoryItem("Living Room", 6, true, subItems = listOf(
-                                        DirectoryItem("Main Chandelier (Smart Light)", 7, false),
-                                        DirectoryItem("AC Thermostat", 7, false),
-                                        DirectoryItem("Security Camera", 7, false)
-                                    )),
-                                    DirectoryItem("Kitchen", 6, true, subItems = listOf(
-                                        DirectoryItem("Smart Fridge", 7, false),
-                                        DirectoryItem("Coffee Machine", 7, false)
-                                    ))
-                                ))
-                            ))
-                        ))
-                    ))
-                ))
-            )),
-            DirectoryItem("System Logs.txt", 0, false)
-        )
+        // Only generate the top 10 folders
+        val initialData = mutableListOf<DirectoryItem>()
+        for (i in 1..10) {
+            initialData.add(DirectoryItem("Root Folder $i", 0, true))
+        }
 
-        rv.adapter = DirectoryAdapter(data)
+        rv.adapter = DirectoryAdapter(initialData) { item ->
+            findViewById<TextView>(R.id.tv_breadcrumb).text = getPath(item)
+        }
+    }
+
+    // Only generates 10 items for the specific folder clicked
+    fun loadChildrenForItem(parentItem: DirectoryItem) {
+        if (parentItem.isLoaded || !parentItem.isFolder) return
+
+        val nextLevel = parentItem.level + 1
+        val newSubItems = mutableListOf<DirectoryItem>()
+
+        for (i in 1..10) {
+            val isFolder = nextLevel < 7 // Limit to 8 levels (0-7)
+            newSubItems.add(
+                DirectoryItem(
+                    name = if (isFolder) "Folder $i (L$nextLevel)" else "Device $i",
+                    level = nextLevel,
+                    isFolder = isFolder,
+                    parent = parentItem
+                )
+            )
+        }
+        parentItem.subItems = newSubItems
+        parentItem.isLoaded = true
+    }
+
+    private fun getPath(item: DirectoryItem): String {
+        val path = mutableListOf<String>()
+        var curr: DirectoryItem? = item
+        while (curr != null) {
+            path.add(0, curr.name)
+            curr = curr.parent
+        }
+        return path.joinToString(" > ")
     }
 }

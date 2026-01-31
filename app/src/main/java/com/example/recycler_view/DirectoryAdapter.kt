@@ -1,22 +1,22 @@
 package com.example.recycler_view
 
 import DirectoryItem
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import android.view.LayoutInflater
 
-class DirectoryAdapter(private var fullList: List<DirectoryItem>) :
-    RecyclerView.Adapter<DirectoryAdapter.ViewHolder>() {
+class DirectoryAdapter(
+    private var fullList: List<DirectoryItem>,
+    private val onItemSelected: (DirectoryItem) -> Unit // Callback for breadcrumbs
+) : RecyclerView.Adapter<DirectoryAdapter.ViewHolder>() {
 
     private var visibleList = mutableListOf<DirectoryItem>()
 
-    init {
-        generateVisibleList()
-    }
+    init { generateVisibleList() }
 
     private fun generateVisibleList() {
         visibleList.clear()
@@ -39,19 +39,28 @@ class DirectoryAdapter(private var fullList: List<DirectoryItem>) :
         fun bind(item: DirectoryItem) {
             name.text = item.name
 
+            // Indentation - Using 24dp to keep 8 levels visible on screen
             val params = root.layoutParams as ViewGroup.MarginLayoutParams
-            params.marginStart = item.level * 40
+            params.marginStart = item.level * 24
             root.layoutParams = params
 
             if (item.isFolder) {
                 arrow.visibility = View.VISIBLE
                 arrow.rotation = if (item.isExpanded) 90f else 0f
+                icon.setImageResource(R.drawable.ic_folder)
             } else {
                 arrow.visibility = View.INVISIBLE
+                icon.setImageResource(R.drawable.ic_file)
             }
 
             root.setOnClickListener {
+                onItemSelected(item)
                 if (item.isFolder) {
+                    // LAZY LOAD HERE
+                    if (!item.isLoaded) {
+                        ((root.context) as MainActivity).loadChildrenForItem(item)
+                    }
+
                     item.isExpanded = !item.isExpanded
                     generateVisibleList()
                 }
@@ -66,4 +75,6 @@ class DirectoryAdapter(private var fullList: List<DirectoryItem>) :
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) = holder.bind(visibleList[position])
     override fun getItemCount() = visibleList.size
+
+
 }
