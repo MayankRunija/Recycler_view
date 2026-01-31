@@ -20,7 +20,6 @@ class DirectoryAdapter(private var fullList: List<DirectoryItem>) :
 
     private fun generateVisibleList() {
         visibleList.clear()
-        // Flatten the tree into a list, only adding children if parent is expanded
         fun addChildren(items: List<DirectoryItem>) {
             for (item in items) {
                 visibleList.add(item)

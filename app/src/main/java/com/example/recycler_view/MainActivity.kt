@@ -16,24 +16,28 @@ class MainActivity : AppCompatActivity() {
 
         // Using true/false instead of FileType
         val data = listOf(
-            DirectoryItem("app", 0, true, subItems = listOf(
-                DirectoryItem("src", 1, true, subItems = listOf(
-                    DirectoryItem("main", 2, true, subItems = listOf(
-                        DirectoryItem("java", 3, true, subItems = listOf(
-                            DirectoryItem("com.example", 4, true, subItems = listOf(
-                                DirectoryItem("MainActivity.kt", 5, false)
+            DirectoryItem("New York City", 0, true, subItems = listOf(
+                DirectoryItem("Manhattan District", 1, true, subItems = listOf(
+                    DirectoryItem("Upper East Side", 2, true, subItems = listOf(
+                        DirectoryItem("5th Avenue", 3, true, subItems = listOf(
+                            DirectoryItem("Skyline Towers (Building A)", 4, true, subItems = listOf(
+                                DirectoryItem("Penthouse Suite", 5, true, subItems = listOf(
+                                    DirectoryItem("Living Room", 6, true, subItems = listOf(
+                                        DirectoryItem("Main Chandelier (Smart Light)", 7, false),
+                                        DirectoryItem("AC Thermostat", 7, false),
+                                        DirectoryItem("Security Camera", 7, false)
+                                    )),
+                                    DirectoryItem("Kitchen", 6, true, subItems = listOf(
+                                        DirectoryItem("Smart Fridge", 7, false),
+                                        DirectoryItem("Coffee Machine", 7, false)
+                                    ))
+                                ))
                             ))
-                        )),
-                        DirectoryItem("res", 3, true, subItems = listOf(
-                            DirectoryItem("layout", 4, true, subItems = listOf(
-                                DirectoryItem("activity_main.xml", 5, false)
-                            ))
-                        )),
-                        DirectoryItem("AndroidManifest.xml", 3, false)
+                        ))
                     ))
-                )),
-                DirectoryItem("build.gradle.kts", 1, false)
-            ))
+                ))
+            )),
+            DirectoryItem("System Logs.txt", 0, false)
         )
 
         rv.adapter = DirectoryAdapter(data)
