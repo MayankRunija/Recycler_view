@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 
 class DirectoryAdapter(
     private var fullList: List<DirectoryItem>,
-    private val onItemSelected: (DirectoryItem) -> Unit // Callback for breadcrumbs
+    private val onItemSelected: (DirectoryItem) -> Unit
 ) : RecyclerView.Adapter<DirectoryAdapter.ViewHolder>() {
 
     private var visibleList = mutableListOf<DirectoryItem>()
@@ -39,7 +39,6 @@ class DirectoryAdapter(
         fun bind(item: DirectoryItem) {
             name.text = item.name
 
-            // Indentation - Using 24dp to keep 8 levels visible on screen
             val params = root.layoutParams as ViewGroup.MarginLayoutParams
             params.marginStart = item.level * 24
             root.layoutParams = params
@@ -56,7 +55,6 @@ class DirectoryAdapter(
             root.setOnClickListener {
                 onItemSelected(item)
                 if (item.isFolder) {
-                    // LAZY LOAD HERE
                     if (!item.isLoaded) {
                         ((root.context) as MainActivity).loadChildrenForItem(item)
                     }
